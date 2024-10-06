@@ -13,12 +13,11 @@ public:
     
     void setStoneAt(int x, int y, Stone stone);
     
-    // Save the board state (for ko checking)
     std::vector<std::vector<Stone>> getBoardState() const;
     std::vector<std::vector<Stone>> getPreviousBoardState() const;
     void saveBoardState();
 
-    int getSize() const;  // Make sure this method is declared
+    int getSize() const;
     
     void attachObserver(Observer* observer);
     void detachObserver(Observer* observer);
@@ -27,7 +26,7 @@ public:
 private:
     std::vector<std::vector<Stone>> grid_;
     std::vector<Observer*> observers_;
-    std::vector<std::vector<Stone>> previous_state_;  // For ko rule
+    std::vector<std::vector<Stone>> previous_state_;
     int size_;
 };
 

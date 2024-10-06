@@ -11,7 +11,6 @@ public:
     SDLRenderer(Board& board, int window_size);
     ~SDLRenderer();
 
-    // Override methods from GraphicalInterface
     bool initialize() override;
     void render() override;
     void clearScreen() override;
@@ -32,4 +31,4 @@ private:
     int tile_size_;
 };
 
-#endif  // SDL_RENDERER_H
+#endif

@@ -3,7 +3,7 @@
 
 class Observer {
 public:
-    virtual void update() = 0;  // Pure virtual function, must be implemented by derived classes
+    virtual void update() = 0;
 };
 
 #endif

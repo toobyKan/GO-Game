@@ -31,15 +31,15 @@ void SDLRenderer::render() {
     SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);  // White background
     SDL_RenderClear(renderer_);
 
-    clearScreen(); // Clear the screen before drawing
-    drawBoardGrid(); // Draw the board grid
-    drawStones(); // Draw all the stones
+    clearScreen();
+    drawBoardGrid();
+    drawStones();
 
     SDL_RenderPresent(renderer_);
 }
 
 void SDLRenderer::update() {
-    render();  // The update will just call render in this case
+    render();
 }
 
 void SDLRenderer::clearScreen() {

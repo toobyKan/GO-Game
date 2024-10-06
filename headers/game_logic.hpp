@@ -16,5 +16,5 @@ private:
 
     std::vector<std::pair<int, int>> getNeighbors(int x, int y) const;
 
-    Board& board_;  // Reference to the board
+    Board& board_;
 };
