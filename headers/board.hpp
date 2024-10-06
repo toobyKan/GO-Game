@@ -1,32 +1,34 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <QWidget>
-#include <QVector>
+#include <vector>
+#include "observer.hpp"
 
-enum class Color { None, Black, White };
+enum class Stone { None, Black, White };
 
-class Board : public QWidget {
-    Q_OBJECT
+class Board {
+public:
+    Board(int size);
+    Stone getStoneAt(int x, int y) const;
+    
+    void setStoneAt(int x, int y, Stone stone);
+    
+    // Save the board state (for ko checking)
+    std::vector<std::vector<Stone>> getBoardState() const;
+    std::vector<std::vector<Stone>> getPreviousBoardState() const;
+    void saveBoardState();
+
+    int getSize() const;  // Make sure this method is declared
+    
+    void attachObserver(Observer* observer);
+    void detachObserver(Observer* observer);
+    void notifyObservers();
 
 private:
-    int boardSize;
-    QVector<QVector<Color>> grid;  // 2D array representing the board
-    Color currentPlayer;
-
-public:
-    explicit Board(int size = 19, QWidget *parent = nullptr);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-
-    QPoint getGridCoordinates(QPoint clickPos);
-    void switchPlayer();
-    void placeStone(int row, int col);
-
-signals:
-    void stonePlaced(int row, int col, Color color);
+    std::vector<std::vector<Stone>> grid_;
+    std::vector<Observer*> observers_;
+    std::vector<std::vector<Stone>> previous_state_;  // For ko rule
+    int size_;
 };
 
-#endif // GO_BOARD_H
+#endif

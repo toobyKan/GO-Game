@@ -1,85 +1,52 @@
-#include "../includes/board.hpp"
-#include <QPainter>
-#include <QMouseEvent>
-#include <QMessageBox>
+#include <algorithm>
 
-Board::Board(int size, QWidget *parent)
-    : QWidget(parent), boardSize(size), currentPlayer(Color::Black) {
-    // Initialize the grid with empty positions
-    grid.resize(boardSize);
-    for (int i = 0; i < boardSize; ++i) {
-        grid[i].resize(boardSize, Color::None);
+#include "../headers/board.hpp"
+#include "../headers/observer.hpp"
+
+
+
+Board::Board(int size) : grid_(size, std::vector<Stone>(size, Stone::None)), size_(size) {}
+
+Stone Board::getStoneAt(int x, int y) const {
+    if (x >= 0 && x < size_ && y >= 0 && y < size_) {
+        return grid_[x][y];
     }
-
-    setMinimumSize(600, 600);  // Set minimum size for the board
+    return Stone::None;
 }
 
-void Board::paintEvent(QPaintEvent *event) {
-    QPainter painter(this);
-    int w = width();
-    int h = height();
+int Board::getSize() const {
+    return size_;
+}
 
-    int cellSize = qMin(w, h) / boardSize;  // Calculate the size of each cell
+void Board::attachObserver(Observer* observer) {
+    observers_.push_back(observer);
+}
 
-    // Draw the grid
-    painter.setPen(Qt::black);
-    for (int i = 0; i < boardSize; ++i) {
-        // Draw horizontal lines
-        painter.drawLine(cellSize / 2, i * cellSize + cellSize / 2, boardSize * cellSize - cellSize / 2, i * cellSize + cellSize / 2);
-        // Draw vertical lines
-        painter.drawLine(i * cellSize + cellSize / 2, cellSize / 2, i * cellSize + cellSize / 2, boardSize * cellSize - cellSize / 2);
-    }
+void Board::detachObserver(Observer* observer) {
+    observers_.erase(std::remove(observers_.begin(), observers_.end(), observer), observers_.end());
+}
 
-    // Draw the stones
-    for (int row = 0; row < boardSize; ++row) {
-        for (int col = 0; col < boardSize; ++col) {
-            if (grid[row][col] != Color::None) {
-                if (grid[row][col] == Color::Black) {
-                    painter.setBrush(Qt::black);
-                } else {
-                    painter.setBrush(Qt::white);
-                }
-                // Draw the stone as a circle
-                int x = col * cellSize + cellSize / 2;
-                int y = row * cellSize + cellSize / 2;
-                painter.drawEllipse(QPoint(x, y), cellSize / 2 - 2, cellSize / 2 - 2);
-            }
-        }
+void Board::notifyObservers() {
+    for (Observer* observer : observers_) {
+        observer->update();
     }
 }
 
-void Board::mousePressEvent(QMouseEvent *event) {
-    QPoint clickPos = event->pos();
-    QPoint gridPos = getGridCoordinates(clickPos);
 
-    int row = gridPos.y();
-    int col = gridPos.x();
-
-    // Make sure the clicked position is within bounds and the cell is empty
-    if (row >= 0 && row < boardSize && col >= 0 && col < boardSize && grid[row][col] == Color::None) {
-        placeStone(row, col);  // Place the stone
-        update();  // Trigger a repaint
-
-        switchPlayer();  // Switch turns
+void Board::setStoneAt(int x, int y, Stone stone) {
+    if (x >= 0 && x < size_ && y >= 0 && y < size_) {
+        grid_[x][y] = stone;
     }
 }
 
-QPoint Board::getGridCoordinates(QPoint clickPos) {
-    int w = width();
-    int h = height();
-    int cellSize = qMin(w, h) / boardSize;
-
-    int col = clickPos.x() / cellSize;
-    int row = clickPos.y() / cellSize;
-
-    return QPoint(col, row);
+std::vector<std::vector<Stone>> Board::getBoardState() const {
+    return grid_;
 }
 
-void Board::placeStone(int row, int col) {
-    grid[row][col] = currentPlayer;  // Place the stone for the current player
-    emit stonePlaced(row, col, currentPlayer);  // Signal for stone placement
+std::vector<std::vector<Stone>> Board::getPreviousBoardState() const {
+    return previous_state_;
 }
 
-void Board::switchPlayer() {
-    currentPlayer = (currentPlayer == Color::Black) ? Color::White : Color::Black;
+void Board::saveBoardState() {
+    previous_state_ = grid_;
 }
