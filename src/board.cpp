@@ -16,7 +16,6 @@ int Board::getSize() const {
     return size_;
 }
 
-
 void Board::setStoneAt(int x, int y, Stone stone) {
     if (x >= 0 && x < size_ && y >= 0 && y < size_) {
         grid_[x][y] = stone;
