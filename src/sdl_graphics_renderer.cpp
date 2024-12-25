@@ -4,7 +4,6 @@
 SDLRenderer::SDLRenderer(Board& board, int window_size)
     : board_(board), window_(nullptr), renderer_(nullptr), window_size_(window_size) {
     tile_size_ = window_size_ / board_.getSize();
-    board_.attachObserver(this);
 }
 
 SDLRenderer::~SDLRenderer() {

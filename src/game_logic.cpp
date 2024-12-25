@@ -1,6 +1,7 @@
 #include "../headers/game_logic.hpp"
 
-GameLogic::GameLogic(Board& board) : board_(board) {}
+GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
+    previousState_(board.getSize(), std::vector<Stone>(board.getSize(), Stone::None)) {}
 
 bool GameLogic::placeStone(int x, int y, Stone stone) {
     // Check if the position is empty
@@ -27,9 +28,8 @@ bool GameLogic::placeStone(int x, int y, Stone stone) {
     }
 
     // Save the board state for future ko checking
-    board_.saveBoardState();
-    
-    board_.notifyObservers();
+    switchPlayer();
+    notifyObservers();
 
     return true;  // The move was valid
 }
@@ -86,7 +86,7 @@ bool GameLogic::hasLiberties(int x, int y, Stone stone, std::set<std::pair<int, 
 
 bool GameLogic::violatesKoRule() {
     // Compare current board state with the previous state for ko violation
-    return board_.getBoardState() == board_.getPreviousBoardState();
+    return board_.getBoardState() == previousState_;
 }
 
 std::vector<std::pair<int, int>> GameLogic::getNeighbors(int x, int y) const {
@@ -98,4 +98,12 @@ std::vector<std::pair<int, int>> GameLogic::getNeighbors(int x, int y) const {
     if (y < board_.getSize() - 1) neighbors.push_back({x, y + 1});  // Down
 
     return neighbors;
+}
+
+void GameLogic::switchPlayer(){
+    currentPlayer_ = (currentPlayer_ == Stone::Black) ? Stone::White : Stone::Black;
+}
+
+Stone GameLogic::getCurrentPlayer(){
+    return currentPlayer_;
 }
