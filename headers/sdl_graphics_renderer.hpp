@@ -2,13 +2,13 @@
 #define SDL_RENDERER_H
 
 #include <SDL2/SDL.h>
+#include <vector>
 #include "graphics_renderer.hpp"
-#include "board.hpp"
-#include "observer.hpp"
+#include "drawable_entity.hpp"
 
-class SDLRenderer : public IGraphicsRenderer, public Observer{
+class SDLRenderer : public IGraphicsRenderer {
 public:
-    SDLRenderer(Board& board, int window_size);
+    SDLRenderer(int window_size);
     ~SDLRenderer();
 
     bool initialize() override;
@@ -16,19 +16,18 @@ public:
     void clearScreen() override;
     void presentScreen() override;
 
-    void update() override;
+    // New methods to manage entities and draw primitives
+    void addEntity(Drawable_Entity* entity);
+    
+    void setColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void drawLine(int x1, int y1, int x2, int y2) override;
+    void drawFilledCircle(int cx, int cy, int radius) override;
 
 private:
-    void drawBoardGrid();
-    void drawStones();
-    void drawStone(int x, int y, Stone stone);
-    void filledCircle(int cx, int cy, int radius);
-
-    Board& board_;
     SDL_Window* window_;
     SDL_Renderer* renderer_;
     int window_size_;
-    int tile_size_;
+    std::vector<Drawable_Entity*> entities_;
 };
 
 #endif

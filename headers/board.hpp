@@ -12,12 +12,12 @@ public:
     
     void setStoneAt(int x, int y, Stone stone);
     
-    std::vector<std::vector<Stone>> getBoardState() const;
+    std::vector<Stone> getBoardState() const;
 
     int getSize() const;
 
 private:
-    std::vector<std::vector<Stone>> grid_;
+    std::vector<Stone> grid_;
     int size_;
 };
 

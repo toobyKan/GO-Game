@@ -1,7 +1,7 @@
 #include "../headers/game_logic.hpp"
 
 GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
-    previousState_(board.getSize(), std::vector<Stone>(board.getSize(), Stone::None)) {}
+    previousState_(board.getSize() * board.getSize(), Stone::None) {}
 
 bool GameLogic::placeStone(int x, int y, Stone stone) {
     // Check if the position is empty
@@ -29,7 +29,13 @@ bool GameLogic::placeStone(int x, int y, Stone stone) {
 
     // Save the board state for future ko checking
     switchPlayer();
-    notifyObservers();
+
+    // Trigger all bound callbacks
+    for (const auto& callback : onTurnCompleted) {
+        if (callback) {
+            callback();
+        }
+    }
 
     return true;  // The move was valid
 }

@@ -1,26 +1,37 @@
 #include "headers/sdl_graphics_renderer.hpp"
 #include "headers/board.hpp"
+#include "headers/board_view.hpp"
 #include "headers/game_logic.hpp"
+#include "headers/input_controller.hpp"
 
 #include <iostream>
 
 int main() {
-    const int board_size = 19;
+    const size_t board_size = 19;
     const int window_size = 800;
 
     Board board(board_size);
     GameLogic gameLogic(board);
-    SDLRenderer renderer(board, window_size);
 
+    SDLRenderer renderer(window_size);
+    BoardView boardView(board, window_size);
+    InputController input(gameLogic, window_size, board_size);
+    
     if (!renderer.initialize()) {
-        return -1;  // Exit if initialization fails
+        return -1;
     }
 
-    gameLogic.attachObserver(&renderer);
+    renderer.addEntity(&boardView);
+
+    // Logic to update the screen after a move
+    gameLogic.onTurnCompleted.push_back([&renderer]() {
+        renderer.render();
+    });
 
     bool running = true;
-
     SDL_Event event;
+    
+    // Initial draw
     renderer.render();
 
     while (running) {
@@ -29,13 +40,7 @@ int main() {
                 running = false;
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                int x = event.button.x * board_size / window_size;
-                int y = event.button.y * board_size / window_size;
-
-                Stone currentPlayer = gameLogic.getCurrentPlayer();
-                if (!gameLogic.placeStone(x, y, currentPlayer)) {
-                    std::cout << "Invalid move!" << std::endl;
-                }
+                input.handleMouseClick(event.button.x, event.button.y);
             }
         }
     }
