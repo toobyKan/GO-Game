@@ -7,41 +7,42 @@ CC := g++
 CFLAGS := -std=c++11 -Wall
 
 # Directories
+INCLUDE_DIR := headers
 SRC_DIR := src
-INCLUDE_DIR := includes
 BUILD_DIR := build
 
 # Source files
-SRCS := main.cpp \
-		$(wildcard $(SRC_DIR)/*.cpp)
+SRCS := main.cpp $(wildcard $(SRC_DIR)/*.cpp)
 
-# Header files
-HEADERS := $(wildcard $(INCLUDE_DIR)/*.hpp)
+OBJS := $(BUILD_DIR)/main.o \
+        $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cpp))
 
-# Object files
-OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
-
-# Executable name
 TARGET := main
-
-# Libraries
+TEST_TARGET := $(BUILD_DIR)/test_game_logic
 LIBS := -lSDL2
 
-# Default target
 all: $(TARGET)
 
 # Linking
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
-# Compiling source files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+$(BUILD_DIR)/main.o: main.cpp
 	mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@ -I.
 
-# Clean build files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@ -I.
+
+$(TEST_TARGET): test_game_logic.cpp src/board.cpp src/game_logic.cpp
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ -I.
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 
-# PHONY targets to avoid conflicts with file names
-.PHONY: all clean
+.PHONY: all test clean

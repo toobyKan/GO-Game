@@ -11,9 +11,10 @@ public:
     Stone getStoneAt(int x, int y) const;
     
     void setStoneAt(int x, int y, Stone stone);
+    void restoreState(const std::vector<Stone>& state);
     
     std::vector<Stone> getBoardState() const;
-
+    
     int getSize() const;
 
 private:

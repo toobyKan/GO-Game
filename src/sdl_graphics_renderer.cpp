@@ -13,16 +13,39 @@ SDLRenderer::~SDLRenderer() {
 
 bool SDLRenderer::initialize() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
+        
         return false;
     }
 
-    window_ = SDL_CreateWindow("Go", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_size_, window_size_, SDL_WINDOW_SHOWN);
+    window_ = SDL_CreateWindow(
+        "Go", 
+        SDL_WINDOWPOS_CENTERED, 
+        SDL_WINDOWPOS_CENTERED, 
+        window_size_, 
+        window_size_, 
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+    );
+
     if (!window_) {
+        std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << '\n';
+        SDL_Quit();
+        
         return false;
     }
 
     renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-    return renderer_ != nullptr;
+    
+    if (!renderer_) {
+        std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << '\n';
+        SDL_DestroyWindow(window_);
+        window_ = nullptr;
+        SDL_Quit();
+
+        return false;
+    }
+
+    return true;
 }
 
 void SDLRenderer::addEntity(Drawable_Entity* entity) {

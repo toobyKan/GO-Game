@@ -1,33 +1,48 @@
 #include "../headers/game_logic.hpp"
 
 GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
-    previousState_(board.getSize() * board.getSize(), Stone::None) {}
+    previousState_(board.getBoardState()) {}
 
 bool GameLogic::placeStone(int x, int y, Stone stone) {
+    // Validate move
+    if (
+        x < 0 || x >= board_.getSize() ||
+        y < 0 || y >= board_.getSize()
+    ) {
+        return false;
+    }
+    
+    if (stone == Stone::None || stone != currentPlayer_) {
+        return false;
+    }
+
     // Check if the position is empty
     if (board_.getStoneAt(x, y) != Stone::None) {
         return false;
     }
+
+    auto boardStateBeforeMove = board_.getBoardState();
     
     // Temporarily place the stone
     board_.setStoneAt(x, y, stone);
+
+        // Capture opponent stones
+    captureStones(x, y, stone);
     
     // Check for suicide
     if (isSuicide(x, y, stone)) {
-        board_.setStoneAt(x, y, Stone::None);  // Undo the move
+        board_.restoreState(boardStateBeforeMove);  // Undo the move
         return false;
     }
     
-    // Capture opponent stones
-    captureStones(x, y, stone);
-    
     // Check for ko rule
     if (violatesKoRule()) {
-        board_.setStoneAt(x, y, Stone::None);  // Undo the move
+        board_.restoreState(boardStateBeforeMove);  // Undo the move
         return false;
     }
 
     // Save the board state for future ko checking
+    previousState_ = boardStateBeforeMove;
     switchPlayer();
 
     // Trigger all bound callbacks

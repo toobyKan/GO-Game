@@ -2,11 +2,13 @@
 #define BOARD_VIEW_H
 
 #include "drawable_entity.hpp"
+#include "board_geometry.hpp"
 #include "board.hpp"
 
 class BoardView : public Drawable_Entity {
 public:
-    BoardView(const Board& board, int window_size);
+    BoardView(const Board& board, int window_width, int window_height);
+    void setWindowSize(int window_width, int window_height);
     void draw(IGraphicsRenderer& renderer) const override;
 
 private:
@@ -15,8 +17,7 @@ private:
     void drawStone(IGraphicsRenderer& renderer, int x, int y, Stone stone) const;
 
     const Board& board_;
-    int window_size_;
-    int tile_size_;
+    BoardGeometry geometry_;
 };
 
 #endif
