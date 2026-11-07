@@ -5,6 +5,7 @@
 
 #include <set>
 #include <functional>
+#include <vector>
 
 class GameLogic {
 public:
@@ -13,7 +14,7 @@ public:
     
     bool placeStone(int x, int y, Stone stone);
     
-    Stone getCurrentPlayer();
+    Stone getCurrentPlayer() const;
 private:
     void captureStones(int x, int y, Stone stone);
     

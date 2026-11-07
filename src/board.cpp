@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include "../headers/board.hpp"
+#include "board.hpp"
 
 Board::Board(int size)
     : grid_(), size_(size) {

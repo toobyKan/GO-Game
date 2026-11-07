@@ -1,4 +1,4 @@
-#include "../headers/board_geometry.hpp"
+#include "board_geometry.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -36,9 +36,11 @@ void BoardGeometry::resize(
     window_width_ = window_width;
     window_height_ = window_height;
 
+    const int margin = 30;
+
     // Keep the board square inside the window.
     board_pixels_ =
-        std::min(window_width_, window_height_);
+        std::min(window_width_, window_height_) - 2 * margin;
 
     // Center the square board.
     origin_x_ =

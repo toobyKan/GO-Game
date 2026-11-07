@@ -1,4 +1,4 @@
-#include "../headers/game_logic.hpp"
+#include "game_logic.hpp"
 
 GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
     previousState_(board.getBoardState()) {}
@@ -125,6 +125,6 @@ void GameLogic::switchPlayer(){
     currentPlayer_ = (currentPlayer_ == Stone::Black) ? Stone::White : Stone::Black;
 }
 
-Stone GameLogic::getCurrentPlayer(){
+Stone GameLogic::getCurrentPlayer() const{
     return currentPlayer_;
 }

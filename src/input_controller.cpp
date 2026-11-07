@@ -1,4 +1,4 @@
-#include "../headers/input_controller.hpp"
+#include "input_controller.hpp"
 
 #include <iostream>
 

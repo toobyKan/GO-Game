@@ -1,5 +1,5 @@
-﻿#include "headers/board.hpp"
-#include "headers/game_logic.hpp"
+#include "board.hpp"
+#include "game_logic.hpp"
 
 #include <iostream>
 #include <string>

@@ -1,71 +1,70 @@
-#include "headers/sdl_graphics_renderer.hpp"
-#include "headers/board.hpp"
-#include "headers/board_view.hpp"
-#include "headers/game_logic.hpp"
-#include "headers/input_controller.hpp"
+#include "sdl_graphics_renderer.hpp"
+#include "board.hpp"
+#include "board_view.hpp"
+#include "game_logic.hpp"
+#include "input_controller.hpp"
+#include "states/state_manager.hpp"
+#include "states/main_menu_state.hpp"
 
 #include <iostream>
+#include <chrono>
+
+using Clock = std::chrono::steady_clock;
+
 
 int main() {
-    const size_t board_size = 19;
+    const int board_size = 19;
     const int window_width = 800;
     const int window_height = 800;
 
-    Board board(board_size);
-    GameLogic gameLogic(board);
-
     SDLRenderer renderer(window_width);
-    BoardView boardView(board, window_width, window_height);
-    InputController input(gameLogic, window_width, window_height, board_size);
     
     if (!renderer.initialize()) {
         return -1;
     }
 
-    renderer.addEntity(&boardView);
+    if (!renderer.loadFont(
+            "assets/DejaVuSans.ttf",
+            28)) {
+        return -1;
+    }
 
-    // Logic to update the screen after a move
-    gameLogic.onTurnCompleted.push_back([&renderer]() {
-        renderer.render();
-    });
+    StateManager stateManager;
 
-    bool running = true;
-    SDL_Event event;
-    
-    // Initial draw
-    renderer.render();
+    stateManager.replaceState(
+        std::unique_ptr<AppState>(
+            new MainMenuState(
+                stateManager,
+                window_width,
+                window_height,
+                board_size
+            )
+        )
+    );
 
-    while (running) {
-        if (SDL_WaitEvent(&event) == 0) {
-            std::cerr << "SDL_WaitEvent failed: " << SDL_GetError() << '\n';
-            break;
+    auto previousTime = Clock::now();
+
+    while (stateManager.isRunning()) {
+        auto currentTime = Clock::now();
+
+        std::chrono::duration<double> elapsed = currentTime - previousTime;
+        previousTime = currentTime;
+
+        double deltaTime = elapsed.count();
+
+        if (deltaTime > 0.1) deltaTime = 0.1;
+
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event)) {
+            stateManager.handleEvent(event);
         }
-           
-        switch (event.type) {
-        case SDL_QUIT:
-            running = false;
-            break;
 
-        case SDL_MOUSEBUTTONDOWN:
-            input.handleMouseClick(event.button.x, event.button.y);
-            break;
- 
-        case SDL_WINDOWEVENT:
-            if (event.window.event ==
-                SDL_WINDOWEVENT_SIZE_CHANGED) {
-                const int width = event.window.data1;
-                const int height = event.window.data2;
+        stateManager.update(deltaTime);
 
-                boardView.setWindowSize(width, height);
-                input.setWindowSize(width, height);
-
-                renderer.render();
-            }
-            break;
-
-        default:
-            break;
-        }
+        renderer.clearScreen();
+        stateManager.render(renderer);
+        renderer.presentScreen();
     }
 
     return 0;

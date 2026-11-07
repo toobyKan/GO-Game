@@ -2,6 +2,7 @@
 #define GRAPHICS_RENDERER_H
 
 #include <cstdint>
+#include <string>
 
 class IGraphicsRenderer {
 public:
@@ -16,6 +17,16 @@ public:
     virtual void setColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) = 0;
     virtual void drawLine(int x1, int y1, int x2, int y2) = 0;
     virtual void drawFilledCircle(int cx, int cy, int radius) = 0;
+    virtual void drawFilledRect(int x, int y, int width, int height) = 0;
+    virtual void drawText(
+        const std::string& text,
+        int centerX,
+        int centerY,
+        uint8_t r,
+        uint8_t g,
+        uint8_t b,
+        uint8_t a = 255
+    ) = 0;
 };
 
 #endif

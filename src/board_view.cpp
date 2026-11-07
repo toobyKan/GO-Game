@@ -1,4 +1,4 @@
-#include "../headers/board_view.hpp"
+#include "board_view.hpp"
 
 BoardView::BoardView(const Board& board, int window_width, int window_height) 
     : board_(board), 

@@ -1,5 +1,67 @@
 # Go Game Project Release Changelog
 
+## Release: 11.07.2026
+
+1. State Management
+
+    Added: AppState interface for defining common state lifecycle, event, update, and rendering behavior.
+
+    Added: StateManager with stack-based state transitions.
+
+    Added: Support for replacing, resetting, pushing, and popping states.
+
+    Added: Pause and resume lifecycle handling for stacked states.
+
+    Added: Main menu, local game, and pause states.
+
+2. Menu and Button UI
+
+    Added: Button drawable entity with bounds, hover detection, text labels, and callback actions.
+
+    Added: Main menu buttons for starting a local game and exiting the application.
+
+    Added: Pause menu buttons for resuming, returning to the main menu, and exiting.
+
+    Added: Responsive button layout updates when the window is resized.
+
+3. Text and Renderer Improvements
+
+    Added: SDL_ttf integration for rendering menu and button text.
+
+    Added: drawFilledRect and drawText primitives to the graphics renderer interface.
+
+    Added: Font loading support in SDLRenderer.
+
+    Changed: UI elements now render through the graphics renderer abstraction.
+
+4. Game Loop Timing
+
+    Added: ``std::chrono::steady_clock`` timing for calculating elapsed frame time.
+
+    Changed: State updates now receive measured delta time instead of a fixed update value.
+
+    Added: Delta-time clamping to prevent unusually large updates after application stalls.
+
+5. Project Organization and Build System
+
+    Changed: State headers were moved into the headers/states directory.
+
+    Changed: State implementations were moved into the src/states directory.
+
+    Changed: Include paths now use the headers directory consistently.
+
+    Changed: The Makefile now discovers source files in nested directories.
+
+    Changed: The application executable and test binaries are generated inside the build directory.
+
+6. Testing
+
+    Added: State-manager tests covering state replacement, reset, push, and pop behavior.
+
+    Added: Additional board-geometry edge-case tests.
+
+    Changed: Tests are now organized inside the tests directory.
+
 ## Release: 10.31.2026
 
 1. Responsive Board Geometry

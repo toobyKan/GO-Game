@@ -9,6 +9,7 @@ class BoardView : public Drawable_Entity {
 public:
     BoardView(const Board& board, int window_width, int window_height);
     void setWindowSize(int window_width, int window_height);
+    
     void draw(IGraphicsRenderer& renderer) const override;
 
 private:
