@@ -1,5 +1,51 @@
 # Go Game Project Release Changelog
 
+## Release: 11.18.2026
+
+1. Game Session Layer
+
+    Added: IGameSession interface for providing a common session API.
+
+    Added: LocalGameSession responsible for owning the Board and GameLogic instances.
+
+    Changed: Local game state now interacts with LocalGameSession instead of owning GameLogic and Board directly.
+
+    Added: Session methods for submitting moves, accessing the board, retrieving the current player, and updating session state.
+
+2. Game Logic API
+
+    Changed: GameLogic::placeStone now determines the current player internally.
+
+    Removed: The need for callers to provide a Stone value when placing a move.
+
+    Added: Tests verifying automatic player selection and turn preservation after rejected moves.
+
+3. Input and Local Game Integration
+
+    Changed: InputController now converts screen coordinates into grid coordinates and forwards move requests through a callback.
+
+    Changed: LocalGameState now receives move requests and submits them to LocalGameSession.
+
+    Changed: InputController no longer depends directly on GameLogic.
+
+    Added: Protection against invoking an empty move-request callback.
+
+4. Move Feedback
+
+    Added: Invalid-move status messages to LocalGameState.
+
+    Added: Timed UI feedback for rejected moves.
+
+    Changed: Move errors are now handled by the game state instead of being printed by the session or input layer.
+
+5. Testing and Build System
+
+    Added: LocalGameSession tests covering board creation, successful moves, turn changes, rejected moves, and out-of-bounds coordinates.
+
+    Changed: Makefile now builds and runs the LocalGameSession test target.
+
+    Changed: Test execution now covers game logic, geometry, state management, and local session behavior.
+
 ## Release: 11.07.2026
 
 1. State Management
