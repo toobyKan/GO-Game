@@ -12,7 +12,7 @@ public:
     GameLogic(Board& board);
     std::vector<std::function<void()>> onTurnCompleted;
     
-    bool placeStone(int x, int y, Stone stone);
+    bool placeStone(int x, int y);
     
     Stone getCurrentPlayer() const;
 private:

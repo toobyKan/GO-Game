@@ -3,7 +3,7 @@
 GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
     previousState_(board.getBoardState()) {}
 
-bool GameLogic::placeStone(int x, int y, Stone stone) {
+bool GameLogic::placeStone(int x, int y) {
     // Validate move
     if (
         x < 0 || x >= board_.getSize() ||
@@ -12,9 +12,6 @@ bool GameLogic::placeStone(int x, int y, Stone stone) {
         return false;
     }
     
-    if (stone == Stone::None || stone != currentPlayer_) {
-        return false;
-    }
 
     // Check if the position is empty
     if (board_.getStoneAt(x, y) != Stone::None) {
@@ -24,13 +21,13 @@ bool GameLogic::placeStone(int x, int y, Stone stone) {
     auto boardStateBeforeMove = board_.getBoardState();
     
     // Temporarily place the stone
-    board_.setStoneAt(x, y, stone);
+    board_.setStoneAt(x, y, currentPlayer_);
 
         // Capture opponent stones
-    captureStones(x, y, stone);
+    captureStones(x, y, currentPlayer_);
     
     // Check for suicide
-    if (isSuicide(x, y, stone)) {
+    if (isSuicide(x, y, currentPlayer_)) {
         board_.restoreState(boardStateBeforeMove);  // Undo the move
         return false;
     }

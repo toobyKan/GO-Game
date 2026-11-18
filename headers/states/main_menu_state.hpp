@@ -23,6 +23,8 @@ public:
     void update(double deltaTime) override;
     void render(IGraphicsRenderer& renderer) override;
 
+    void handleMoveRequest(int x, int y);
+
 private:
     void updateLayout();
     void registerButtons();

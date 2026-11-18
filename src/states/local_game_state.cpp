@@ -11,11 +11,13 @@ LocalGameState::LocalGameState(
     int window_width, 
     int window_height
 ) :
-stateManager_(state_manager),  
-board_(board_size), 
-gameLogic_(board_), 
-boardView_(board_, window_width, window_height),
-input_(gameLogic_, window_width, window_height, board_size),
+stateManager_(state_manager),
+session_(board_size),
+boardView_(session_.getBoard(), window_width, window_height),
+input_(window_width, window_height, board_size, [this](int x, int y) {
+        handleMoveRequest(x, y);
+    }
+),
 windowWidth_(window_width),
 windowHeight_(window_height),
 boardSize_(board_size) {}
@@ -32,9 +34,7 @@ void LocalGameState::onEnter(){
     );
 }
 
-void LocalGameState::onExit() {
-    gameLogic_.onTurnCompleted.clear();
-}
+void LocalGameState::onExit() {}
 
 void LocalGameState::onPause() {}
 
@@ -102,10 +102,41 @@ void LocalGameState::handleEvent(const SDL_Event& event) {
     }
 }
 
+void LocalGameState::handleMoveRequest(int x, int y) {
+    if (session_.submitMove(x, y)){
+        statusMessage_.clear();
+        statusMessageTimer_ = 0.0;
+    }
+    else {
+        statusMessage_ = "Invalid Move";
+        statusMessageTimer_ = 2.0;
+    }
+}
+
+
 void LocalGameState::update(double deltaTime) {
-    (void)deltaTime;
+    if (statusMessageTimer_ > 0.0) {
+        statusMessageTimer_ -= deltaTime;
+
+        if (statusMessageTimer_ <= 0.0) {
+            statusMessage_.clear();
+            statusMessageTimer_ = 0.0;
+        }
+    }
 }
 
 void LocalGameState::render(IGraphicsRenderer& renderer) {
     boardView_.draw(renderer);
+
+    if (!statusMessage_.empty()) {
+        renderer.drawText(
+            statusMessage_,
+            windowWidth_ / 2,
+            30,
+            255,
+            80,
+            80,
+            255
+        );
+    }
 }

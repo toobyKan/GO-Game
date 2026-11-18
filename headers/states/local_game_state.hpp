@@ -2,10 +2,11 @@
 #define LOCAL_GAME_STATE_H
 
 #include "app_state.hpp"
-#include "../board.hpp"
-#include "../game_logic.hpp"
 #include "../board_view.hpp"
 #include "../input_controller.hpp"
+#include "../local_game_session.hpp"
+
+#include <string>
 
 class StateManager;
 
@@ -31,17 +32,21 @@ public:
     void update(double deltaTime) override;
     void render(IGraphicsRenderer& renderer) override;
 
+    void handleMoveRequest(int x, int y);
+
 private:
     StateManager& stateManager_;
 
-    Board board_;
-    GameLogic gameLogic_;
+    LocalGameSession session_;
     BoardView boardView_;
     InputController input_;
 
     int windowWidth_;
     int windowHeight_;
     int boardSize_;
+
+    std::string statusMessage_;
+    double statusMessageTimer_ = 0.0;
 };
 
 #endif

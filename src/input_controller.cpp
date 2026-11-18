@@ -1,15 +1,14 @@
 #include "input_controller.hpp"
 
-#include <iostream>
 
 InputController::InputController(
-    GameLogic& game_logic,
     int window_width,
     int window_height,
-    int board_size
+    int board_size,
+    std::function<void(int, int)> onMoveRequested
 )
-    : game_logic_(game_logic),
-      geometry_(board_size, window_width, window_height) {
+    : geometry_(board_size, window_width, window_height),
+      onMoveRequested_(onMoveRequested) {
 }
 
 void InputController::setWindowSize(
@@ -30,10 +29,7 @@ void InputController::handleMouseClick(int mouse_x, int mouse_y) {
             grid_y)) {
         return;
     }
-
-    const Stone currentPlayer = game_logic_.getCurrentPlayer();
-
-    if (!game_logic_.placeStone(grid_x, grid_y, currentPlayer)) {
-        std::cout << "Invalid move!\n";
+    if (onMoveRequested_) {
+        onMoveRequested_(grid_x, grid_y);
     }
 }
