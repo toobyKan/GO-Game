@@ -2,6 +2,7 @@
 #define GAME_LOGIC_H
 
 #include "board.hpp"
+#include "move_result.hpp"
 
 #include <set>
 #include <functional>
@@ -10,9 +11,8 @@
 class GameLogic {
 public:
     GameLogic(Board& board);
-    std::vector<std::function<void()>> onTurnCompleted;
     
-    bool placeStone(int x, int y);
+    MoveResult placeStone(int x, int y);
     
     Stone getCurrentPlayer() const;
 private:

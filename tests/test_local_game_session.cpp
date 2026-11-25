@@ -30,7 +30,7 @@ void test_session_starts_with_empty_board() {
 void test_successful_move_updates_session() {
     LocalGameSession session(3);
 
-    expect(session.submitMove(1, 1),
+    expect(session.submitMove(1, 1).status == MoveStatus::Accepted,
            "session accepts a legal move");
     expect(session.getBoard().getStoneAt(1, 1) == Stone::Black,
            "accepted move updates the session board");
@@ -41,14 +41,14 @@ void test_successful_move_updates_session() {
 void test_rejected_move_preserves_session_state() {
     LocalGameSession session(3);
 
-    expect(session.submitMove(1, 1),
+    expect(session.submitMove(1, 1).status == MoveStatus::Accepted,
            "initial move is accepted before testing rejection");
 
     const std::vector<Stone> stateAfterFirstMove =
         session.getBoard().getBoardState();
     const Stone playerAfterFirstMove = session.getCurrentPlayer();
 
-    expect(!session.submitMove(1, 1),
+    expect(session.submitMove(1, 1).status == MoveStatus::Occupied,
            "session rejects a move on an occupied point");
     expect(session.getBoard().getBoardState() == stateAfterFirstMove,
            "rejected move does not change the board");
@@ -61,9 +61,9 @@ void test_out_of_bounds_move_is_rejected() {
     const std::vector<Stone> initialState =
         session.getBoard().getBoardState();
 
-    expect(!session.submitMove(-1, 0),
+    expect(session.submitMove(-1, 0).status == MoveStatus::OutOfBounds,
            "session rejects negative coordinates");
-    expect(!session.submitMove(3, 0),
+    expect(session.submitMove(3, 0).status == MoveStatus::OutOfBounds,
            "session rejects coordinates past the board");
     expect(session.getBoard().getBoardState() == initialState,
            "out-of-bounds moves do not change the board");
@@ -78,7 +78,6 @@ int main() {
     test_successful_move_updates_session();
     test_rejected_move_preserves_session_state();
     test_out_of_bounds_move_is_rejected();
-
 
     if (failures != 0) {
         std::cerr << failures << " test(s) failed\n";

@@ -1,4 +1,4 @@
-CC := g++
+﻿CC := g++
 CFLAGS := -std=c++11 -Wall
 INCLUDE_DIR := headers
 SRC_DIR := src
@@ -14,6 +14,9 @@ GEOMETRY_TEST_TARGET := $(BUILD_DIR)/test_board_geometry
 STATE_TEST_TARGET := $(BUILD_DIR)/test_state_manager
 SESSION_TEST_TARGET := $(BUILD_DIR)/test_local_game_session
 EDGE_GEOMETRY_TEST_TARGET := $(BUILD_DIR)/test_geometry_edge_cases
+CODEC_TEST_TARGET := $(BUILD_DIR)/test_network_codec
+ONLINE_SESSION_TEST_TARGET := $(BUILD_DIR)/test_online_game_session
+SERVER_MATCH_TEST_TARGET := $(BUILD_DIR)/test_server_match
 LIBS := -lSDL2 -lSDL2_ttf
 
 all: $(TARGET)
@@ -46,12 +49,27 @@ $(EDGE_GEOMETRY_TEST_TARGET): tests/test_geometry_edge_cases.cpp src/board_geome
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $^ -o $@ -I$(INCLUDE_DIR)
 
-test: $(TEST_TARGET) $(GEOMETRY_TEST_TARGET) $(STATE_TEST_TARGET) $(SESSION_TEST_TARGET) $(EDGE_GEOMETRY_TEST_TARGET)
+$(CODEC_TEST_TARGET): tests/test_network_codec.cpp src/network/network_codec.cpp
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $^ -o $@ -I$(INCLUDE_DIR)
+
+$(ONLINE_SESSION_TEST_TARGET): tests/test_online_game_session.cpp src/online_game_session.cpp src/network/network_codec.cpp tests/network_client/fake_network_client.cpp src/board.cpp
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $^ -o $@ -I$(INCLUDE_DIR)
+
+$(SERVER_MATCH_TEST_TARGET): tests/test_server_match.cpp src/server/server_match.cpp src/online_game_session.cpp src/network/network_codec.cpp tests/network_client/fake_network_client.cpp src/board.cpp src/game_logic.cpp
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $^ -o $@ -I$(INCLUDE_DIR)
+
+test: $(TEST_TARGET) $(GEOMETRY_TEST_TARGET) $(STATE_TEST_TARGET) $(SESSION_TEST_TARGET) $(EDGE_GEOMETRY_TEST_TARGET) $(CODEC_TEST_TARGET) $(ONLINE_SESSION_TEST_TARGET) $(SERVER_MATCH_TEST_TARGET)
 	./$(TEST_TARGET)
 	./$(GEOMETRY_TEST_TARGET)
 	./$(STATE_TEST_TARGET)
 	./$(SESSION_TEST_TARGET)
 	./$(EDGE_GEOMETRY_TEST_TARGET)
+	./$(CODEC_TEST_TARGET)
+	./$(ONLINE_SESSION_TEST_TARGET)
+	./$(SERVER_MATCH_TEST_TARGET)
 
 clean:
 	rm -rf $(BUILD_DIR)

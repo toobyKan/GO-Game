@@ -1,5 +1,51 @@
 # Go Game Project Release Changelog
 
+## Release: 11.26.2026
+
+1. Move Result API
+
+    Added: MoveResult and MoveStatus for reporting accepted, pending, occupied, suicide, Ko, out-of-bounds, and network-error outcomes.
+
+    Changed: GameLogic and game sessions now return MoveResult instead of a boolean when submitting a move.
+
+    Changed: LocalGameState now displays specific feedback for rejected moves.
+
+    Removed: GameLogic turn-completion callbacks as move outcomes are returned directly to callers.
+
+2. Network Protocol and Codec
+
+    Added: Protocol message definitions for match requests, match setup, move requests, move responses, board snapshots, disconnection, and game-over notifications.
+
+    Added: NetworkCodec support for serializing and deserializing framed wire messages.
+
+    Added: Typed encoding and decoding for move requests, accepted and rejected moves, MatchFound, and BoardSnapshot messages.
+
+    Added: Board snapshots containing match ID, state version, board size, current player, and serialized stone values.
+
+3. Online Session and Server Match
+
+    Added: OnlineGameSession for sending move requests through an injected network-client interface and processing server responses.
+
+    Added: Pending-move tracking to prevent sending additional moves while a request is awaiting a response.
+
+    Added: ServerMatch as an in-memory authoritative match that validates request sequence numbers, turn order, and moves through GameLogic.
+
+    Changed: Accepted server moves now increment the match state version and broadcast a complete BoardSnapshot to both players.
+
+    Added: Move rejection responses for invalid sequences, wrong turns, and rejected game-logic moves.
+
+4. Testing and Build System
+
+    Added: FakeNetworkClient for testing queued incoming and outgoing wire messages without sockets.
+
+    Added: Network codec tests for round trips, snapshots, and malformed protocol data.
+
+    Added: Online-session tests for pending requests, accepted and rejected responses, disconnected sends, and invalid coordinates.
+
+    Added: Server-match integration tests for accepted snapshot broadcasts, wrong-turn requests, invalid sequences, and illegal moves.
+
+    Changed: The Makefile now builds and runs the network codec, online-session, and server-match test targets.
+
 ## Release: 11.18.2026
 
 1. Game Session Layer

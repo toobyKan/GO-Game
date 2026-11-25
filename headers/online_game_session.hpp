@@ -3,14 +3,14 @@
 
 #include "game_session.hpp"
 #include "board.hpp"
-#include "game_logic.hpp"
+#include "network/network_client.hpp"
 
 
 class OnlineGameSession : public IGameSession {
 public:
-    OnlineGameSession(int board_size);
+    OnlineGameSession(int board_size, INetworkClient& client);
 
-    bool submitMove(int x, int y) override;
+    MoveResult submitMove(int x, int y) override;
 
     const Board& getBoard() const override;
     Stone getCurrentPlayer() const override;
@@ -18,8 +18,20 @@ public:
     void update(double deltaTime) override;
 
 private:
+    void handleMessage(const WireMessage& message);
+    void handleMoveAccepted(const WireMessage& message);
+    void handleMoveRejected(const WireMessage& message);
+    void handleBoardSnapshot(const WireMessage& message);
+
     Board board_;
-    GameLogic gameLogic_;
+    INetworkClient& client_;
+
+    std::uint32_t matchId_ = 0;
+    std::uint32_t stateVersion_ = 0;
+    std::uint32_t nextSequenceNumber_ = 1;
+    std::uint32_t pendingSequenceNumber_ = 0;
+    Stone currentPlayer_ = Stone::Black;
+    bool movePending_ = false;
 }; 
 
 #endif

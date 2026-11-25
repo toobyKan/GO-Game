@@ -3,19 +3,23 @@
 GameLogic::GameLogic(Board& board) : board_(board), currentPlayer_(Stone::Black),
     previousState_(board.getBoardState()) {}
 
-bool GameLogic::placeStone(int x, int y) {
+MoveResult GameLogic::placeStone(int x, int y) {
+    MoveResult result{MoveStatus::Accepted};
+
     // Validate move
     if (
         x < 0 || x >= board_.getSize() ||
         y < 0 || y >= board_.getSize()
     ) {
-        return false;
+        result.status = MoveStatus::OutOfBounds;
+        return result;
     }
     
 
     // Check if the position is empty
     if (board_.getStoneAt(x, y) != Stone::None) {
-        return false;
+        result.status = MoveStatus::Occupied;
+        return result;
     }
 
     auto boardStateBeforeMove = board_.getBoardState();
@@ -29,27 +33,23 @@ bool GameLogic::placeStone(int x, int y) {
     // Check for suicide
     if (isSuicide(x, y, currentPlayer_)) {
         board_.restoreState(boardStateBeforeMove);  // Undo the move
-        return false;
+        result.status = MoveStatus::Suicide;
+        return result;
     }
     
     // Check for ko rule
     if (violatesKoRule()) {
         board_.restoreState(boardStateBeforeMove);  // Undo the move
-        return false;
+        result.status = MoveStatus::Ko;
+        return result;
     }
 
     // Save the board state for future ko checking
     previousState_ = boardStateBeforeMove;
     switchPlayer();
 
-    // Trigger all bound callbacks
-    for (const auto& callback : onTurnCompleted) {
-        if (callback) {
-            callback();
-        }
-    }
 
-    return true;  // The move was valid
+    return result;  // The move was valid
 }
 
 bool GameLogic::isSuicide(int x, int y, Stone stone) {

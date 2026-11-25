@@ -1,4 +1,4 @@
-﻿#include "board.hpp"
+#include "board.hpp"
 #include "game_logic.hpp"
 
 #include <iostream>
@@ -29,13 +29,13 @@ void test_place_and_turn_order() {
 
     expect(game.getCurrentPlayer() == Stone::Black,
            "black starts the game");
-    expect(game.placeStone(1, 1),
+    expect(game.placeStone(1, 1).status == MoveStatus::Accepted,
            "black can place on an empty point");
     expect(board.getStoneAt(1, 1) == Stone::Black,
            "placed stone is stored on the board");
     expect(game.getCurrentPlayer() == Stone::White,
            "turn changes after a successful move");
-    expect(!game.placeStone(1, 1),
+    expect(game.placeStone(1, 1).status == MoveStatus::Occupied,
            "occupied points cannot be played");
 }
 
@@ -43,12 +43,12 @@ void test_api_uses_internal_turn() {
     Board board(3);
     GameLogic game(board);
 
-    expect(game.placeStone(0, 0),
+    expect(game.placeStone(0, 0).status == MoveStatus::Accepted,
            "the new API accepts a move without a Stone argument");
     expect(board.getStoneAt(0, 0) == Stone::Black,
            "the first move uses the internally tracked black player");
 
-    expect(game.placeStone(1, 0),
+    expect(game.placeStone(1, 0).status == MoveStatus::Accepted,
            "the next player can place a legal move");
     expect(board.getStoneAt(1, 0) == Stone::White,
            "the second move uses the internally tracked white player");
@@ -63,11 +63,11 @@ void test_rejected_move_preserves_turn() {
 
     GameLogic game(board);
 
-    expect(!game.placeStone(2, 2),
-           "a rejected move does not place a stone");
+    expect(game.placeStone(2, 2).status == MoveStatus::Suicide,
+           "a suicide move is rejected");
     expect(game.getCurrentPlayer() == Stone::Black,
            "a rejected move does not change the current player");
-    expect(game.placeStone(0, 0),
+    expect(game.placeStone(0, 0).status == MoveStatus::Accepted,
            "the same player can make a legal move after rejection");
     expect(board.getStoneAt(0, 0) == Stone::Black,
            "the legal move after rejection uses the unchanged player");
@@ -81,7 +81,7 @@ void test_suicide_is_rejected() {
     board.setStoneAt(1, 2, Stone::White);
 
     GameLogic game(board);
-    expect(!game.placeStone(1, 1),
+    expect(game.placeStone(1, 1).status == MoveStatus::Suicide,
            "a move with no liberties is rejected");
     expect(board.getStoneAt(1, 1) == Stone::None,
            "a rejected suicide does not change the board");
@@ -92,9 +92,9 @@ void test_invalid_moves_are_rejected() {
     GameLogic game(board);
     const std::vector<Stone> initialState = board.getBoardState();
 
-    expect(!game.placeStone(-1, 0),
+    expect(game.placeStone(-1, 0).status == MoveStatus::OutOfBounds,
            "negative coordinates are rejected");
-    expect(!game.placeStone(3, 0),
+    expect(game.placeStone(3, 0).status == MoveStatus::OutOfBounds,
            "coordinates past the board are rejected");
     expect(board.getBoardState() == initialState,
            "invalid moves do not change the board");
@@ -108,7 +108,7 @@ void test_capture_is_allowed() {
     board.setStoneAt(2, 1, Stone::Black);
 
     GameLogic game(board);
-    expect(game.placeStone(1, 2),
+    expect(game.placeStone(1, 2).status == MoveStatus::Accepted,
            "a move that captures an opponent group is legal");
     expect(board.getStoneAt(1, 1) == Stone::None,
            "captured stones are removed");
@@ -119,7 +119,6 @@ void test_capture_is_allowed() {
 void test_ko_is_rejected() {
     Board board(5);
 
-    // White at (1, 1) is captured by black at (1, 2).
     board.setStoneAt(1, 1, Stone::White);
     board.setStoneAt(0, 1, Stone::Black);
     board.setStoneAt(1, 0, Stone::Black);
@@ -129,11 +128,11 @@ void test_ko_is_rejected() {
     board.setStoneAt(1, 3, Stone::White);
 
     GameLogic game(board);
-    expect(game.placeStone(1, 2),
+    expect(game.placeStone(1, 2).status == MoveStatus::Accepted,
            "the first move in a Ko position is legal");
 
     const std::vector<Stone> stateAfterCapture = board.getBoardState();
-    expect(!game.placeStone(1, 1),
+    expect(game.placeStone(1, 1).status == MoveStatus::Ko,
            "the immediate Ko recapture is rejected");
     expect(board.getBoardState() == stateAfterCapture,
            "a rejected Ko recapture restores the entire board");

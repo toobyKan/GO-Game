@@ -5,7 +5,7 @@ LocalGameSession::LocalGameSession(int board_size) :
 board_(board_size), 
 gameLogic_(board_) {}
 
-bool LocalGameSession::submitMove(int x, int y) {
+MoveResult LocalGameSession::submitMove(int x, int y) {
     return gameLogic_.placeStone(x, y);
 }
 

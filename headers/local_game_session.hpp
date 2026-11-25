@@ -10,11 +10,11 @@ class LocalGameSession : public IGameSession {
 public:
     LocalGameSession(int board_size);
 
-    bool submitMove(int x, int y) override;
+    MoveResult submitMove(int x, int y) override;
 
     const Board& getBoard() const override;
     Stone getCurrentPlayer() const override;
-    
+
     void update(double deltaTime) override;
 
 private:

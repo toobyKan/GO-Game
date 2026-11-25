@@ -103,14 +103,32 @@ void LocalGameState::handleEvent(const SDL_Event& event) {
 }
 
 void LocalGameState::handleMoveRequest(int x, int y) {
-    if (session_.submitMove(x, y)){
+    MoveResult result = session_.submitMove(x, y);
+
+    switch (result.status) {
+    case MoveStatus::Accepted:
         statusMessage_.clear();
-        statusMessageTimer_ = 0.0;
+        break;
+
+    case MoveStatus::Occupied:
+        statusMessage_ = "Point is already occupied";
+        break;
+
+    case MoveStatus::Suicide:
+        statusMessage_ = "Suicide moves are not allowed";
+        break;
+
+    case MoveStatus::Ko:
+        statusMessage_ = "Move violates Ko";
+        break;
+
+    default:
+        statusMessage_ = "Move rejected";
+        break;
     }
-    else {
-        statusMessage_ = "Invalid Move";
-        statusMessageTimer_ = 2.0;
-    }
+
+    statusMessageTimer_ = 2.0;
+
 }
 
 
